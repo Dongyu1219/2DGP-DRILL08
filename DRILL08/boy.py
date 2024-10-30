@@ -1,5 +1,5 @@
 from pico2d import load_image, get_time
-from sdl2 import SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT
+from sdl2 import SDLK_RIGHT, SDL_KEYUP, SDLK_LEFT, SDLK_a
 
 from state_machine import *
 
@@ -16,6 +16,12 @@ def left_down(e):
 def left_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
 
+def a_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
+
+def a_up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_a
+
 
 class Boy:
     def __init__(self):
@@ -28,9 +34,10 @@ class Boy:
         self.state_machine.start(Idle) # 초기 상태가 Idle로 설정됨
         self.state_machine.set_transitions(
             {
-                Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep},
+                Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep, a_down: AutoRun, a_up: AutoRun},
                 Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle},
-                Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run, space_down: Idle}
+                Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run, space_down: Idle},
+                AutoRun : {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Idle}
             }
         )
 
@@ -124,5 +131,29 @@ class Run:
     def draw(boy):
         boy.image.clip_draw(
             boy.frame*100, boy.action*100, 100, 100, boy.x, boy.y
+        )
+        pass
+
+
+class AutoRun:
+    @staticmethod
+    def enter(boy,e):
+        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
+            boy.dir, boy.action = 1, 1
+        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
+            boy.dir, boy.action = -1, 0
+        pass
+    @staticmethod
+    def exit(boy,e):
+        pass
+    @staticmethod
+    def do(boy):
+        boy.x += boy.dir * 10
+        boy.frame = (boy.frame + 1) % 8
+        pass
+    @staticmethod
+    def draw(boy):
+        boy.image.clip_draw(
+            boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y+30, 200, 200
         )
         pass

@@ -1,4 +1,5 @@
-from sdl2 import SDL_KEYDOWN, SDLK_SPACE
+from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_a
+
 
 def start_event(e):
     return e[0] == 'START'
@@ -7,6 +8,9 @@ def start_event(e):
 
 def space_down(e): #e가 space down 인지 판단
     return e[0] =='INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
+
+def a_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_a
 
 def time_out(e): #e가 time out 인지 판단
     return e[0] == 'TIME_OUT'
